@@ -7,6 +7,10 @@ bool InvertedIndex::add(Document doc)
     if (name_to_id_.find(doc.name) != name_to_id_.end())
         return false; // проверка на уникальность имени
     // если фолс значит такое имя уже есть
+    else if (doc.name.empty())
+        return false;
+    else if (doc.words.empty())
+        return false;
 
     doc.id = next_id_++;
     name_to_id_.emplace(doc.name, doc.id);
@@ -18,25 +22,24 @@ bool InvertedIndex::add(Document doc)
     return true;
 }
 bool InvertedIndex::remove(const std::string& name)
-{   
+{
     auto name_it = name_to_id_.find(name); // ищем по имени айди
-    if (name_it == name_to_id_.end())     // по доп мапе
+    if (name_it == name_to_id_.end())      // по доп мапе
         return false;
-    size_t id = name_it->second; 
-    auto doc_it = docs_.find(id); //найденному айди ищем документ
-    
+    size_t id = name_it->second;
+    auto doc_it = docs_.find(id); // найденному айди ищем документ
+
     for (const auto& word : doc_it->second.words) // удаляем слова
     {
         auto& posting = index_[word];
         posting.erase(id);
-        if (posting.empty())    //проверка на вхождение удаленного слова в другие документы
-            index_.erase(word); 
+        if (posting.empty()) // проверка на вхождение удаленного слова в другие документы
+            index_.erase(word);
     }
 
     docs_.erase(doc_it);
     name_to_id_.erase(name_it);
     return true;
-
 }
 std::vector<size_t> InvertedIndex::search(const std::string& word) const
 {
@@ -45,8 +48,8 @@ std::vector<size_t> InvertedIndex::search(const std::string& word) const
         return {};
 
     std::vector<size_t> res;
-    res.reserve(it->second.size());               // резервирует память
-    for (const auto& [doc_id,_] : it->second) 
+    res.reserve(it->second.size()); // резервирует память
+    for (const auto& [doc_id, _] : it->second)
         res.push_back(doc_id);
 
     return res;
@@ -65,10 +68,10 @@ size_t InvertedIndex::count(const std::string& word, size_t doc_id) const
 }
 // короче вот функция, которая по имени документа ищет кол-во входений слова
 /*
-size_t InvertedIndex::count_by_name(const std::string& word, const std::string& name) const 
+size_t InvertedIndex::count_by_name(const std::string& word, const std::string& name) const
 {
     auto name_it = name_to_id_.find(name);
-    if (name_it == name_to_id_.end()) 
+    if (name_it == name_to_id_.end())
         return 0;
     return count(word, name_it->second);
 }

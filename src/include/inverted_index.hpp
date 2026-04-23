@@ -24,7 +24,7 @@ class InvertedIndex
 
     std::unordered_map<size_t, Document> docs_;
     std::unordered_map<std::string, std::unordered_map<size_t, size_t>> index_;
-    std::unordered_map<std::string, size_t> name_to_id_; //доп мапа
+    std::unordered_map<std::string, size_t> name_to_id_; // доп мапа
     // нужна чтобы имя файла помнило какое айди у него
 };
 } // namespace lab5::index
