@@ -12,15 +12,19 @@ namespace lab5::index
 class InvertedIndex
 {
   public:
-    void add(Document doc);
-    void delete_(size_t id);
+    bool add(Document doc);
+    bool remove(const std::string& name);
     std::vector<size_t> search(const std::string& word) const;
-    size_t search_and_count(const std::string& word, size_t doc_id) const;
+    size_t count(const std::string& word, size_t doc_id) const; // принимать название?? добавлю еще функцию
+    // size_t count_by_name(const std::string& word, const std::string& name) const;
+    // пригодится, дальше посмотрим, что оставим, можем обе
 
   private:
-    size_t next_id = 1;
+    size_t next_id_ = 1;
 
-    std::unordered_map<size_t, Document> docs;
-    std::unordered_map<std::string, std::unordered_map<size_t, size_t>> index;
+    std::unordered_map<size_t, Document> docs_;
+    std::unordered_map<std::string, std::unordered_map<size_t, size_t>> index_;
+    std::unordered_map<std::string, size_t> name_to_id_; //доп мапа
+    // нужна чтобы имя файла помнило какое айди у него
 };
 } // namespace lab5::index
