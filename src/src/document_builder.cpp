@@ -1,4 +1,5 @@
 #include "document_builder.hpp"
+#include "text_utils.hpp"
 
 #include <cctype>
 
@@ -44,20 +45,5 @@ std::vector<std::string> DocumentBuilder::tokenize(const std::string& text)
 
     return words;
 }
-
-char DocumentBuilder::normalize(char ch)
-{
-    return static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
-}
-
-// std::string DocumentBuilder::normalize(const std::string& word) //перегрузка для строк. На момент сдачи 5й лабы не
-// нужна, но мб оставим на будущее
-//{
-//     std::string result;
-//     result.reserve(word.size());
-//     for (char c : word)
-//         result += normalize(c);
-//     return result;
-// }
 
 } // namespace lab5::index
