@@ -26,7 +26,9 @@ bool InvertedIndex::remove(const std::string& name)
     if (name_it == name_to_id_.end())      // по доп мапе
         return false;
     size_t id = name_it->second;
-    auto doc_it = docs_.find(id); // найденному айди ищем документ
+    auto doc_it = docs_.find(id); // найденному id ищем док
+    if (doc_it == docs_.end())
+        return false;
 
     for (const auto& word : doc_it->second.words) // удаляем слова
     {
