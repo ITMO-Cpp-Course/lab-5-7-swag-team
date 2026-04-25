@@ -16,7 +16,6 @@ class DocumentBuilder
 
   private:
     static std::vector<std::string> tokenize(const std::string& text);
-    // std::string normalize(const std::string& word); пока пусть будет
 };
 
 } // namespace lab5::index

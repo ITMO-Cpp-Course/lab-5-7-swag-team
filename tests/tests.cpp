@@ -30,9 +30,9 @@ TEST_CASE("DocumentBuilder: tokenization: punctuation is stripped", "[builder]")
 TEST_CASE("DocumentBuilder: tokenization: lowercase check", "[builder]")
 {
     DocumentBuilder builder;
-    Document doc = builder.build("doc", "FOO BAR Baz");
+    Document doc = builder.build("doc", "FOO BAR Baz"); //baz lighter
 
-    REQUIRE(doc.words == std::vector<std::string>{"foo", "bar", "baz"});
+    REQUIRE(doc.words == std::vector<std::string>{"foo", "bar", "baz"});//baz lighter
 }
 
 TEST_CASE("DocumentBuilder: tokenization: hyphenated word is preserved", "[builder]")
@@ -113,6 +113,17 @@ TEST_CASE("InvertedIndex: search: multiple documents", "[index][search]")
     REQUIRE(result.size() == 2);
 }
 
+TEST_CASE("InvertedIndex: search: hyphenated word is found", "[index][search]")
+{
+    InvertedIndex idx;
+    DocumentBuilder builder;
+
+    idx.add(builder.build("doc1", "well-known fact"));
+
+    REQUIRE(idx.search("well-known").size() == 1);
+    REQUIRE(idx.search("well").empty());
+}
+
 TEST_CASE("InvertedIndex: search: returns empty for missing word", "[index][search]")
 {
     InvertedIndex idx;
@@ -146,6 +157,18 @@ TEST_CASE("InvertedIndex: count: simple", "[index][count]")
 
     size_t id = idx.search("cat").front();
     REQUIRE(idx.count("cat", id) == 3);
+}
+
+TEST_CASE("InvertedIndex: count: lowercases input before lookup", "[index][count]")
+{
+    InvertedIndex idx;
+    DocumentBuilder builder;
+
+    idx.add(builder.build("doc1", "cat cat dog cat"));
+
+    size_t id = idx.search("cat").front();
+    REQUIRE(idx.count("CAT", id) == 3);
+    REQUIRE(idx.count("Cat", id) == 3);
 }
 
 TEST_CASE("InvertedIndex: count: returns 0 for missing word", "[index][count]")
@@ -211,6 +234,18 @@ TEST_CASE("InvertedIndex: word stays searchable if present in another document a
 
     REQUIRE(idx.search("hello").size() == 1);
     REQUIRE(idx.search("world").empty());
+}
+
+TEST_CASE("InvertedIndex: count: returns 0 after document is removed", "[index][remove]")
+{
+    InvertedIndex idx;
+    DocumentBuilder builder;
+
+    idx.add(builder.build("doc1", "hello world"));
+    size_t id = idx.search("hello").front();
+    idx.remove("doc1");
+
+    REQUIRE(idx.count("hello", id) == 0);
 }
 
 TEST_CASE("InvertedIndex: removed document name can be reused", "[index][remove]")
