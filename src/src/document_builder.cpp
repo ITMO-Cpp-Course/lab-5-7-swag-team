@@ -1,6 +1,5 @@
 #include "document_builder.hpp"
 #include "text_utils.hpp"
-
 #include <cctype>
 
 namespace lab5::index
@@ -12,7 +11,7 @@ Document DocumentBuilder::build(std::string name, const std::string& text)
     doc.id = 0;
     doc.name = std::move(name); // быстро без лишнего копирования
     doc.words = tokenize(text);
-    return doc; // C++17 умный
+    return doc;
 }
 
 std::vector<std::string> DocumentBuilder::tokenize(const std::string& text)
