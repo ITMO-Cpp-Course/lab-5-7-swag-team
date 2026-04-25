@@ -3,8 +3,6 @@
 #include "document_builder.hpp"
 #include "inverted_index.hpp"
 
-#include <algorithm>
-
 using namespace lab5::index;
 
 // DocumentBuilder
@@ -30,9 +28,9 @@ TEST_CASE("DocumentBuilder: tokenization: punctuation is stripped", "[builder]")
 TEST_CASE("DocumentBuilder: tokenization: lowercase check", "[builder]")
 {
     DocumentBuilder builder;
-    Document doc = builder.build("doc", "FOO BAR Baz"); //baz lighter
+    Document doc = builder.build("doc", "FOO BAR Baz"); // baz lighter
 
-    REQUIRE(doc.words == std::vector<std::string>{"foo", "bar", "baz"});//baz lighter
+    REQUIRE(doc.words == std::vector<std::string>{"foo", "bar", "baz"}); // baz lighter
 }
 
 TEST_CASE("DocumentBuilder: tokenization: hyphenated word is preserved", "[builder]")
@@ -109,7 +107,6 @@ TEST_CASE("InvertedIndex: search: multiple documents", "[index][search]")
     idx.add(builder.build("doc3", "goodbye world"));
 
     auto result = idx.search("hello");
-    std::sort(result.begin(), result.end());
     REQUIRE(result.size() == 2);
 }
 
@@ -155,8 +152,7 @@ TEST_CASE("InvertedIndex: count: simple", "[index][count]")
 
     idx.add(builder.build("doc1", "cat cat dog cat"));
 
-    size_t id = idx.search("cat").front();
-    REQUIRE(idx.count("cat", id) == 3);
+    REQUIRE(idx.count("cat", "doc1") == 3);
 }
 
 TEST_CASE("InvertedIndex: count: lowercases input before lookup", "[index][count]")
@@ -166,9 +162,8 @@ TEST_CASE("InvertedIndex: count: lowercases input before lookup", "[index][count
 
     idx.add(builder.build("doc1", "cat cat dog cat"));
 
-    size_t id = idx.search("cat").front();
-    REQUIRE(idx.count("CAT", id) == 3);
-    REQUIRE(idx.count("Cat", id) == 3);
+    REQUIRE(idx.count("CAT", "doc1") == 3);
+    REQUIRE(idx.count("Cat", "doc1") == 3);
 }
 
 TEST_CASE("InvertedIndex: count: returns 0 for missing word", "[index][count]")
@@ -178,18 +173,17 @@ TEST_CASE("InvertedIndex: count: returns 0 for missing word", "[index][count]")
 
     idx.add(builder.build("doc1", "hello world"));
 
-    size_t id = idx.search("hello").front();
-    REQUIRE(idx.count("foo", id) == 0);
+    REQUIRE(idx.count("foo", "doc1") == 0);
 }
 
-TEST_CASE("InvertedIndex: count: returns 0 for missing doc_id", "[index][count]")
+TEST_CASE("InvertedIndex: count: returns 0 for missing doc name", "[index][count]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
 
     idx.add(builder.build("doc1", "hello world"));
 
-    REQUIRE(idx.count("hello", 999) == 0);
+    REQUIRE(idx.count("hello", "nonexistent") == 0);
 }
 
 // InvertedIndex: remove
@@ -242,10 +236,9 @@ TEST_CASE("InvertedIndex: count: returns 0 after document is removed", "[index][
     DocumentBuilder builder;
 
     idx.add(builder.build("doc1", "hello world"));
-    size_t id = idx.search("hello").front();
     idx.remove("doc1");
 
-    REQUIRE(idx.count("hello", id) == 0);
+    REQUIRE(idx.count("hello", "doc1") == 0);
 }
 
 TEST_CASE("InvertedIndex: removed document name can be reused", "[index][remove]")

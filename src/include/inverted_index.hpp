@@ -14,10 +14,8 @@ class InvertedIndex
   public:
     bool add(Document doc);
     bool remove(const std::string& name);
-    std::vector<size_t> search(const std::string& word) const;
-    size_t count(const std::string& word, size_t doc_id) const; // принимать название?? добавлю еще функцию
-    // size_t count_by_name(const std::string& word, const std::string& name) const;
-    // пригодится, дальше посмотрим, что оставим, можем обе
+    std::vector<std::string> search(const std::string& word) const;
+    size_t count(const std::string& word, const std::string& doc_name) const;
 
   private:
     size_t next_id_ = 1;
