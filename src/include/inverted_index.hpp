@@ -1,6 +1,7 @@
 #pragma once
 
 #include "document.hpp"
+#include "result.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -12,10 +13,11 @@ namespace lab5::index
 class InvertedIndex
 {
   public:
-    bool add(Document doc);
-    bool remove(const std::string& name);
+    Result<void> add(Document doc);
+    Result<void> remove(const std::string& name);
     std::vector<std::string> search(const std::string& word) const;
-    size_t count(const std::string& word, const std::string& doc_name) const;
+    Result<size_t> count(const std::string& word, const std::string& doc_name) const;
+    const Document* get(const std::string& name) const; // нужен UpdateTransaction, чтобы делать копию и откатывать изменения
 
   private:
     using id_t = size_t;

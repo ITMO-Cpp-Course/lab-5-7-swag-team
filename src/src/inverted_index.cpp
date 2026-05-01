@@ -3,14 +3,14 @@
 
 namespace lab5::index
 {
-bool InvertedIndex::add(Document doc)
+Result<void> InvertedIndex::add(Document doc)
 {
     if (doc.name.empty())
-        return false;
+        return std::unexpected("Document name is empty");
     if (doc.words.empty())
-        return false;
+        return std::unexpected("Document is empty");
     if (name_to_id_.find(doc.name) != name_to_id_.end())
-        return false; // проверка на уникальность имени
+        return std::unexpected("This name is used"); // проверка на уникальность имени
     doc.id = next_id_++;
     name_to_id_.emplace(doc.name, doc.id);
 
@@ -18,17 +18,17 @@ bool InvertedIndex::add(Document doc)
         index_[word][doc.id]++;
 
     docs_.emplace(doc.id, std::move(doc));
-    return true;
+    return {};
 }
-bool InvertedIndex::remove(const std::string& name)
+Result<void> InvertedIndex::remove(const std::string& name)
 {
     auto name_it = name_to_id_.find(name); // ищем по имени айди
     if (name_it == name_to_id_.end())      // по доп мапе
-        return false;
+        return std::unexpected("Document not found");
     size_t id = name_it->second;
     auto doc_it = docs_.find(id); // найденному id ищем док
     if (doc_it == docs_.end())
-        return false;
+        return std::unexpected("Internal error: document id not found");
 
     for (const auto& word : doc_it->second.words) // удаляем слова
     {
@@ -40,7 +40,7 @@ bool InvertedIndex::remove(const std::string& name)
 
     docs_.erase(doc_it);
     name_to_id_.erase(name_it);
-    return true;
+    return {};
 }
 std::vector<std::string> InvertedIndex::search(const std::string& word) const
 {
@@ -56,11 +56,11 @@ std::vector<std::string> InvertedIndex::search(const std::string& word) const
     return res;
 }
 
-size_t InvertedIndex::count(const std::string& word, const std::string& doc_name) const
+Result<size_t> InvertedIndex::count(const std::string& word, const std::string& doc_name) const
 {
     auto name_it = name_to_id_.find(doc_name);
     if (name_it == name_to_id_.end())
-        return 0;
+        return std::unexpected("Document not found");
 
     auto word_it = index_.find(normalize(word));
     if (word_it == index_.end())
@@ -71,6 +71,14 @@ size_t InvertedIndex::count(const std::string& word, const std::string& doc_name
         return 0;
 
     return doc_it->second;
+}
+
+const Document* InvertedIndex::get(const std::string& name) const
+{
+    auto it = name_to_id_.find(name);
+    if (it == name_to_id_.end())
+        return nullptr;
+    return &docs_.at(it->second);
 }
 
 } // namespace lab5::index
