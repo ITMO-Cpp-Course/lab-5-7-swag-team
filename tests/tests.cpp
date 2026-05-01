@@ -110,9 +110,9 @@ TEST_CASE("InvertedIndex: search finds word across multiple documents", "[index]
 
     auto result = idx.search("hello");
     REQUIRE(result.size() == 2);
-    REQUIRE(std::find(result.begin(), result.end(), 1) != result.end());
-    REQUIRE(std::find(result.begin(), result.end(), 2) != result.end());
-    REQUIRE(std::find(result.begin(), result.end(), 3) == result.end());
+    REQUIRE(std::find(result.begin(), result.end(), "doc1") != result.end());
+    REQUIRE(std::find(result.begin(), result.end(), "doc2") != result.end());
+    REQUIRE(std::find(result.begin(), result.end(), "doc3") == result.end());
 }
 
 TEST_CASE("InvertedIndex: search: hyphenated word is found", "[index][search]")
