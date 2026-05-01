@@ -3,7 +3,12 @@
 
 namespace lab5::index
 {
-bool InvertedIndex::add(Document doc)
+bool InvertedIndex::add(const Document& doc)
+{
+    return add(Document(doc));
+}
+
+bool InvertedIndex::add(Document&& doc)
 {
     if (doc.name.empty())
         return false;

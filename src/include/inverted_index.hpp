@@ -12,7 +12,8 @@ namespace lab5::index
 class InvertedIndex
 {
   public:
-    bool add(Document doc);
+    bool add(const Document& doc);
+    bool add(Document&& doc);
     bool remove(const std::string& name);
     std::vector<std::string> search(const std::string& word) const;
     size_t count(const std::string& word, const std::string& doc_name) const;
