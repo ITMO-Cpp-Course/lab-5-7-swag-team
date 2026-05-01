@@ -3,6 +3,8 @@
 #include "document_builder.hpp"
 #include "inverted_index.hpp"
 
+#include <algorithm>
+
 using namespace lab5::index;
 
 // --- DocumentBuilder ---
