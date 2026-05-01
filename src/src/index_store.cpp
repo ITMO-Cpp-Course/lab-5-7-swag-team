@@ -5,12 +5,12 @@
 
 namespace lab5::index
 {
-Result<> IndexStore::add(Document doc)
+Result<void> IndexStore::add(Document doc)
 {
     return index_.add(std::move(doc));
 }
 
-Result<> IndexStore::remove(const std::string& name)
+Result<void> IndexStore::remove(const std::string& name)
 {
     return index_.remove(name);
 }
