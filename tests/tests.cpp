@@ -7,9 +7,9 @@
 
 using namespace lab5::index;
 
-// DocumentBuilder
+// --- DocumentBuilder ---
 
-TEST_CASE("DocumentBuilder: tokenization: simple ", "[builder]")
+TEST_CASE("DocumentBuilder: basic tokenization", "[builder]")
 {
     DocumentBuilder builder;
     Document doc = builder.build("doc", "Hello World");
@@ -19,15 +19,15 @@ TEST_CASE("DocumentBuilder: tokenization: simple ", "[builder]")
     REQUIRE(doc.words == std::vector<std::string>{"hello", "world"});
 }
 
-TEST_CASE("DocumentBuilder: tokenization: punctuation is stripped", "[builder]")
+TEST_CASE("DocumentBuilder: punctuation is stripped", "[builder]")
 {
     DocumentBuilder builder;
-    Document doc = builder.build("doc", "Hello, World!");
+    Document doc = builder.build("doc", "Hello&!(#%@ World");
 
     REQUIRE(doc.words == std::vector<std::string>{"hello", "world"});
 }
 
-TEST_CASE("DocumentBuilder: tokenization: lowercase check", "[builder]")
+TEST_CASE("DocumentBuilder: lowercase", "[builder]")
 {
     DocumentBuilder builder;
     Document doc = builder.build("doc", "FOO BAR Baz");
@@ -35,7 +35,7 @@ TEST_CASE("DocumentBuilder: tokenization: lowercase check", "[builder]")
     REQUIRE(doc.words == std::vector<std::string>{"foo", "bar", "baz"});
 }
 
-TEST_CASE("DocumentBuilder: tokenization: hyphenated word is preserved", "[builder]")
+TEST_CASE("DocumentBuilder: hyphenated word is preserved", "[builder]")
 {
     DocumentBuilder builder;
     Document doc = builder.build("doc", "well-known fact");
@@ -51,9 +51,9 @@ TEST_CASE("DocumentBuilder: empty text produces empty words", "[builder]")
     REQUIRE(doc.words.empty());
 }
 
-// InvertedIndex: add
+// --- InvertedIndex: add ---
 
-TEST_CASE("InvertedIndex: add: simple", "[index][add]")
+TEST_CASE("InvertedIndex: add returns true on success", "[index][add]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
@@ -61,7 +61,7 @@ TEST_CASE("InvertedIndex: add: simple", "[index][add]")
     REQUIRE(idx.add(builder.build("doc1", "hello world")));
 }
 
-TEST_CASE("InvertedIndex: add: rejects duplicate name", "[index][add]")
+TEST_CASE("InvertedIndex: add rejects duplicate name", "[index][add]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
@@ -70,7 +70,7 @@ TEST_CASE("InvertedIndex: add: rejects duplicate name", "[index][add]")
     REQUIRE_FALSE(idx.add(builder.build("doc1", "other text")));
 }
 
-TEST_CASE("InvertedIndex: add: rejects empty name", "[index][add]")
+TEST_CASE("InvertedIndex: add rejects empty name", "[index][add]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
@@ -78,7 +78,7 @@ TEST_CASE("InvertedIndex: add: rejects empty name", "[index][add]")
     REQUIRE_FALSE(idx.add(builder.build("", "hello world")));
 }
 
-TEST_CASE("InvertedIndex: add: rejects document with no words", "[index][add]")
+TEST_CASE("InvertedIndex: add rejects document with no words", "[index][add]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
@@ -86,9 +86,9 @@ TEST_CASE("InvertedIndex: add: rejects document with no words", "[index][add]")
     REQUIRE_FALSE(idx.add(builder.build("doc1", "")));
 }
 
-// InvertedIndex: search
+// --- InvertedIndex: search ---
 
-TEST_CASE("InvertedIndex: search: simple", "[index][search]")
+TEST_CASE("InvertedIndex: search finds word in single document", "[index][search]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
@@ -99,7 +99,7 @@ TEST_CASE("InvertedIndex: search: simple", "[index][search]")
     REQUIRE(result.size() == 1);
 }
 
-TEST_CASE("InvertedIndex: search: multiple documents", "[index][search]")
+TEST_CASE("InvertedIndex: search finds word across multiple documents", "[index][search]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
@@ -109,11 +109,13 @@ TEST_CASE("InvertedIndex: search: multiple documents", "[index][search]")
     idx.add(builder.build("doc3", "goodbye world"));
 
     auto result = idx.search("hello");
-    std::sort(result.begin(), result.end());
     REQUIRE(result.size() == 2);
+    REQUIRE(std::find(result.begin(), result.end(), 1) != result.end());
+    REQUIRE(std::find(result.begin(), result.end(), 2) != result.end());
+    REQUIRE(std::find(result.begin(), result.end(), 3) == result.end());
 }
 
-TEST_CASE("InvertedIndex: search: returns empty for missing word", "[index][search]")
+TEST_CASE("InvertedIndex: search returns empty for missing word", "[index][search]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
@@ -123,7 +125,7 @@ TEST_CASE("InvertedIndex: search: returns empty for missing word", "[index][sear
     REQUIRE(idx.search("foo").empty());
 }
 
-TEST_CASE("InvertedIndex: search: lowercases input before lookup", "[index][search]")
+TEST_CASE("InvertedIndex: search lowercases input before lookup", "[index][search]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
@@ -135,9 +137,9 @@ TEST_CASE("InvertedIndex: search: lowercases input before lookup", "[index][sear
     REQUIRE(idx.search("HELLO").size() == 1);
 }
 
-// InvertedIndex: count
+// --- InvertedIndex: count ---
 
-TEST_CASE("InvertedIndex: count: simple", "[index][count]")
+TEST_CASE("InvertedIndex: count returns correct occurrence count", "[index][count]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
@@ -148,7 +150,7 @@ TEST_CASE("InvertedIndex: count: simple", "[index][count]")
     REQUIRE(idx.count("cat", id) == 3);
 }
 
-TEST_CASE("InvertedIndex: count: returns 0 for missing word", "[index][count]")
+TEST_CASE("InvertedIndex: count returns 0 for missing word", "[index][count]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
@@ -159,7 +161,7 @@ TEST_CASE("InvertedIndex: count: returns 0 for missing word", "[index][count]")
     REQUIRE(idx.count("foo", id) == 0);
 }
 
-TEST_CASE("InvertedIndex: count: returns 0 for missing doc_id", "[index][count]")
+TEST_CASE("InvertedIndex: count returns 0 for missing doc_id", "[index][count]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
@@ -169,9 +171,9 @@ TEST_CASE("InvertedIndex: count: returns 0 for missing doc_id", "[index][count]"
     REQUIRE(idx.count("hello", 999) == 0);
 }
 
-// InvertedIndex: remove
+// --- InvertedIndex: remove ---
 
-TEST_CASE("InvertedIndex: remove: returns true on success", "[index][remove]")
+TEST_CASE("InvertedIndex: remove returns true on success", "[index][remove]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
@@ -180,16 +182,14 @@ TEST_CASE("InvertedIndex: remove: returns true on success", "[index][remove]")
     REQUIRE(idx.remove("doc1"));
 }
 
-TEST_CASE("InvertedIndex: remove: returns false for missing name", "[index][remove]")
+TEST_CASE("InvertedIndex: remove returns false for missing name", "[index][remove]")
 {
     InvertedIndex idx;
 
     REQUIRE_FALSE(idx.remove("nonexistent"));
 }
 
-// InvertedIndex: search
-
-TEST_CASE("InvertedIndex: search: returns nothing after document is removed", "[index][remove]")
+TEST_CASE("InvertedIndex: search returns nothing after document is removed", "[index][remove]")
 {
     InvertedIndex idx;
     DocumentBuilder builder;
