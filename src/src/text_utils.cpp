@@ -10,11 +10,11 @@ char normalize(char ch)
     return static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
 }
 
-std::string normalize(const std::string& word)
+std::string normalize(const std::string& str)
 {
     std::string result;
-    result.reserve(word.size());
-    for (char c : word)
+    result.reserve(str.size());
+    for (char c : str)
         result += normalize(c);
     return result;
 }

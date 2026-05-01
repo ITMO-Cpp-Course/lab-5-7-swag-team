@@ -5,14 +5,12 @@ namespace lab5::index
 {
 bool InvertedIndex::add(Document doc)
 {
-    if (name_to_id_.find(doc.name) != name_to_id_.end())
-        return false; // проверка на уникальность имени
-    // если фолс значит такое имя уже есть
     if (doc.name.empty())
         return false;
     if (doc.words.empty())
         return false;
-
+    if (name_to_id_.find(doc.name) != name_to_id_.end())
+        return false; // проверка на уникальность имени
     doc.id = next_id_++;
     name_to_id_.emplace(doc.name, doc.id);
 
@@ -28,7 +26,9 @@ bool InvertedIndex::remove(const std::string& name)
     if (name_it == name_to_id_.end())      // по доп мапе
         return false;
     size_t id = name_it->second;
-    auto doc_it = docs_.find(id); // найденному айди ищем документ
+    auto doc_it = docs_.find(id); // найденному id ищем док
+    if (doc_it == docs_.end())
+        return false;
 
     for (const auto& word : doc_it->second.words) // удаляем слова
     {
@@ -42,40 +42,35 @@ bool InvertedIndex::remove(const std::string& name)
     name_to_id_.erase(name_it);
     return true;
 }
-std::vector<size_t> InvertedIndex::search(const std::string& word) const
+std::vector<std::string> InvertedIndex::search(const std::string& word) const
 {
     auto it = index_.find(normalize(word));
     if (it == index_.end())
         return {};
 
-    std::vector<size_t> res;
-    res.reserve(it->second.size()); // резервирует память
+    std::vector<std::string> res;
+    res.reserve(it->second.size());
     for (const auto& [doc_id, _] : it->second)
-        res.push_back(doc_id);
+        res.push_back(docs_.at(doc_id).name);
 
     return res;
 }
-size_t InvertedIndex::count(const std::string& word, size_t doc_id) const
+
+size_t InvertedIndex::count(const std::string& word, const std::string& doc_name) const
 {
+    auto name_it = name_to_id_.find(doc_name);
+    if (name_it == name_to_id_.end())
+        return 0;
+
     auto word_it = index_.find(normalize(word));
     if (word_it == index_.end())
         return 0;
 
-    auto doc_it = word_it->second.find(doc_id);
+    auto doc_it = word_it->second.find(name_it->second);
     if (doc_it == word_it->second.end())
         return 0;
 
     return doc_it->second;
 }
 
-// короче вот функция, которая по имени документа ищет кол-во входений слова
-/*
-size_t InvertedIndex::count_by_name(const std::string& word, const std::string& name) const
-{
-    auto name_it = name_to_id_.find(name);
-    if (name_it == name_to_id_.end())
-        return 0;
-    return count(word, name_it->second);
-}
-*/
 } // namespace lab5::index
