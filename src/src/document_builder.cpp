@@ -35,7 +35,6 @@ std::vector<std::string> DocumentBuilder::tokenize(const std::string& text)
         else if (!word.empty())
         {
             words.push_back(std::move(word));
-            word.clear();
         }
     }
 
