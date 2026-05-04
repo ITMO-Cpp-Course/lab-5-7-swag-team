@@ -1,5 +1,3 @@
-#pragma once
-
 #include "index_store.hpp"
 #include "update_transaction.hpp"
 
