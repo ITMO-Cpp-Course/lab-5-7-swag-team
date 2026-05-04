@@ -34,9 +34,7 @@ Result<void> UpdateTransaction::remove(const std::string& name)
     if (!doc)
         return std::unexpected("Document not found");
     Document saved = *doc;
-    // get() только что нашёл документ — remove() не может упасть, результат намеренно игнорится
-    // NOLINT подавляет bugprone-unused-return-value: на всякий чтобы пройти тесты на гите (мб удалю перед пушем)
-    index_->remove(name); // NOLINT(bugprone-unused-return-value)
+    index_->remove(name);
     undo_log_.emplace_back(UndoRemove{std::move(saved)});
     return {};
 }
@@ -49,23 +47,19 @@ void UpdateTransaction::commit()
 
 void UpdateTransaction::rollback() noexcept
 {
-    // clang-tidy: modernize-loop-convert — предпочитает range-based for.
-    // std::views::reverse даёт обратный обход без явных итераторов.
-    for (auto& entry :
-         undo_log_ | std::views::reverse) // это исправил дипсик я пока не понял что это но кланг теперь пройдется
+    for (auto it = undo_log_.rbegin(); it != undo_log_.rend(); ++it)
     {
         std::visit(
-            [this](auto& e) {
-                using T = std::decay_t<decltype(e)>;
+            [this](auto& entry) {
+                using T = std::decay_t<decltype(entry)>;
                 if constexpr (std::is_same_v<T, UndoAdd>)
-                    // при откате имя гарантированно есть в индексе — remove() не упадёт (помогите...)
-                    index_->remove(e.name); // NOLINT(bugprone-unused-return-value)
+                    index_->remove(entry.name);
                 else
-                    // документ был валидным до удаления — add() не упадёт.
-                    index_->add(std::move(e.doc)); // NOLINT(bugprone-unused-return-value)
+                    index_->add(std::move(entry.doc));
             },
-            entry);
+            *it);
     }
 }
+
 
 } // namespace lab5::index
