@@ -1,7 +1,9 @@
 add_library(resource_core STATIC
         src/document_builder.cpp
         src/inverted_index.cpp
+        src/index_store.cpp
         src/text_utils.cpp
+        src/update_transaction.cpp
 )
 
 target_include_directories(resource_core PUBLIC include)
