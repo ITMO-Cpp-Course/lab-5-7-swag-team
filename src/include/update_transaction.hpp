@@ -43,7 +43,7 @@ class UpdateTransaction
     bool committed_ = false;
     std::vector<UndoEntry> undo_log_;
 
-    void rollback() noexcept;
+    void rollback() noexcept; // чтобы не выбросить исключение в деструкторе
 };
 
 } // namespace lab5::index
