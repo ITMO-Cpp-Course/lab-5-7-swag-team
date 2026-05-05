@@ -50,8 +50,7 @@ void UpdateTransaction::rollback() noexcept
     for (auto it = undo_log_.rbegin(); it != undo_log_.rend(); ++it)
     {
         std::visit(
-            [this](auto& entry)
-            {
+            [this](auto& entry) {
                 using T = std::decay_t<decltype(entry)>;
                 if constexpr (std::is_same_v<T, UndoAdd>)
                     index_->remove(entry.name);
