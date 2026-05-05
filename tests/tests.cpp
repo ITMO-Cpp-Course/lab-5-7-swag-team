@@ -7,6 +7,8 @@
 
 #include <algorithm>
 
+#include <algorithm>
+
 using namespace lab5::index;
 
 // DocumentBuilder
