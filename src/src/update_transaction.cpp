@@ -50,10 +50,10 @@ void UpdateTransaction::rollback() noexcept
     for (auto it = undo_log_.rbegin(); it != undo_log_.rend(); ++it)
     {
         std::visit(
-            [this](auto& entry) {
-                using T = std::decay_t<decltype(entry)>;  // убираем все адреса для умной проверки
-                if constexpr (std::is_same_v<T, UndoAdd>) // умная проверка структуры от дипсика чтобы не писать кучу
-                                                          // ифов на ундо адд и ремув
+            [this](auto& entry)
+            {
+                using T = std::decay_t<decltype(entry)>;
+                if constexpr (std::is_same_v<T, UndoAdd>)
                     index_->remove(entry.name);
                 else
                     index_->add(std::move(entry.doc));
