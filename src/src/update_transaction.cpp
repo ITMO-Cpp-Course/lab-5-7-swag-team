@@ -31,7 +31,7 @@ Result<void> UpdateTransaction::remove(const std::string& name)
 {
     const Document* doc = index_->get(name);
     if (!doc)
-        return std::unexpected("Document not found");
+        return std::unexpected(IndexError{ErrorCode::NotFound});
     Document saved = *doc;
     undo_log_.reserve(undo_log_.size() + 1); // бросает до изменения индекса
     index_->remove(name);
