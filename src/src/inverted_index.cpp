@@ -6,11 +6,11 @@ namespace lab5::index
 Result<void> InvertedIndex::add(Document doc)
 {
     if (doc.name.empty())
-        return std::unexpected("Document name is empty");
+        return std::unexpected(IndexError{ErrorCode::EmptyName});
     if (doc.words.empty())
-        return std::unexpected("Document is empty");
+        return std::unexpected(IndexError{ErrorCode::EmptyText});
     if (name_to_id_.find(doc.name) != name_to_id_.end())
-        return std::unexpected("This name is used"); // проверка на уникальность имени
+        return std::unexpected(IndexError{ErrorCode::DuplicateName});
     doc.id = next_id_++;
     name_to_id_.emplace(doc.name, doc.id);
 
@@ -23,12 +23,12 @@ Result<void> InvertedIndex::add(Document doc)
 Result<void> InvertedIndex::remove(const std::string& name)
 {
     auto name_it = name_to_id_.find(name); // ищем по имени айди
-    if (name_it == name_to_id_.end())      // по доп мапе
-        return std::unexpected("Document not found");
+    if (name_it == name_to_id_.end())
+        return std::unexpected(IndexError{ErrorCode::NotFound});
     size_t id = name_it->second;
     auto doc_it = docs_.find(id); // найденному id ищем док
     if (doc_it == docs_.end())
-        return std::unexpected("Internal error: document id not found");
+        return std::unexpected(IndexError{ErrorCode::InternalError});
 
     for (const auto& word : doc_it->second.words) // удаляем слова
     {
@@ -60,7 +60,7 @@ Result<size_t> InvertedIndex::count(const std::string& word, const std::string& 
 {
     auto name_it = name_to_id_.find(doc_name);
     if (name_it == name_to_id_.end())
-        return std::unexpected("Document not found");
+        return std::unexpected(IndexError{ErrorCode::NotFound});
 
     auto word_it = index_.find(normalize(word));
     if (word_it == index_.end())
